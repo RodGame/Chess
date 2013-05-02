@@ -23,8 +23,10 @@ public class PlayerControl : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// Look for Mouse Inputs
+		_activePlayer = _GameManager.activePlayer;
 		if((_activePlayer == 1 && _player1AI == false) || (_activePlayer == -1 && _player2AI == false))
 		{
+			Debug.Log ("Select");
 			GetMouseInputs();
 		}
 	}
@@ -50,6 +52,7 @@ public class PlayerControl : MonoBehaviour {
 					// Select the piece if it has the good Tag
 					if(_hitInfo.collider.gameObject.tag == (_activePlayer.ToString()))
 					{
+						
 						_GameManager.SelectPiece(_hitInfo.collider.gameObject);
 					}
 				}
