@@ -32,12 +32,14 @@ public class GameManager : MonoBehaviour {
 		GUI.Label (new Rect(10,30,200,20), ("Game State = " + gameState));
 	}
 	
+	// Initialize the board area
 	void Start()
 	{
 		CreateBoard();
 		AddPieces();
 	}
 	
+	// Create the board by placing cubes
 	void CreateBoard()
 	{
 		
@@ -58,17 +60,18 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 	
+	// Add all pieces are their respective position
 	void AddPieces()
 	{
 		int _linePosY;
 		int _piecePlayer;
+		
+		// Create all pawn at once
 		for(int i = 0; i < _boardSize; i++)
 		{
 			CreatePiece("Pawn", i, 1, 1); // Create all white pawn 	
 			CreatePiece("Pawn", i, 6, -1); // Create all dark pawn
 		}
-		
-		
 		
 		// Create white pieces
 		_linePosY = 0;
@@ -95,6 +98,7 @@ public class GameManager : MonoBehaviour {
 		CreatePiece("Rook"  , 7, _linePosY, _piecePlayer);
 	}
 	
+	// Spawn a piece on the board
 	void CreatePiece(string _pieceName, int _posX, int _posY, int _playerTag)
 	{
 		GameObject _PieceToCreate = null;
@@ -189,18 +193,21 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 	
+	// If the movement is legal, eat the piece
 	public void EatPiece(GameObject _PieceToEat)
 	{
 		Vector2 _coordToEat = new Vector2(_PieceToEat.transform.position.x, _PieceToEat.transform.position.z);
+		int _deltaX = (int)(_PieceToEat.transform.position.x - SelectedPiece.transform.position.x);
 		
-		if(TestMovement (SelectedPiece, _coordToEat))
+		if(TestMovement (SelectedPiece, _coordToEat) && (SelectedPiece.name != "Pawn" ||  _deltaX != 0))
 		{
 			Object.Destroy (_PieceToEat);
 			_boardPieces[(int)_coordToEat.x, (int)_coordToEat.y] = 0; 
 			MovePiece(_coordToEat);
 		}
 	}
-
+	
+	// Test if the piece can do the player's movement
 	bool TestMovement(GameObject _SelectedPiece, Vector2 _coordToMove)
 	{
 		bool _movementLegalBool = false;
@@ -237,6 +244,7 @@ public class GameManager : MonoBehaviour {
 				}
 		        break;
 			case "Knight":
+				// Knight move in a L movement. distance is evaluated by a multiplication of both direction
 				if((_deltaX != 0 && _deltaY != 0) && Mathf.Abs(_deltaX*_deltaY) == 2)
 				{
 					_movementLegalBool = true;
@@ -273,11 +281,14 @@ public class GameManager : MonoBehaviour {
 		
 		// If the movement is legal, detect collision with piece in the way. Don't do it with knight since they can pass over pieces.
 		if(_movementLegalBool && SelectedPiece.name != "Knight")
+		{
 			_collisionDetectBool = TestCollision (_coordPiece, _coordToMove);
-		
+		}
+			
 		return (_movementLegalBool && !_collisionDetectBool);
 	}
 	
+	// Test if a unit is in the path of the tested movement
 	bool TestCollision(Vector2 _coordInitial,Vector2 _coordFinal)
 	{
 		bool CollisionBool = false;
@@ -290,9 +301,13 @@ public class GameManager : MonoBehaviour {
 		
 		// Calculate the increment if _deltaX/Y is different from 0 to avoid division by 0
 		if(_deltaX != 0)
+		{
 			_incX = (_deltaX/Mathf.Abs(_deltaX));
+		}
 		if(_deltaY != 0)
+		{
 			_incY = (_deltaY/Mathf.Abs(_deltaY));
+		}
 		
 		i = (int)_coordInitial.x + _incX;
 		j = (int)_coordInitial.y + _incY;
